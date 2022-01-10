@@ -1,0 +1,66 @@
+# Nodes with values to reuse in the pipeline.
+common_params:
+  # Common plugin settings to use with the `plugins` key.
+  - &common_plugins
+    - automattic/bash-cache#v1.5.0
+
+steps:
+  - label: "checkstyle"
+    command: |
+      #FIXME – fix in the next version of the AMI
+      echo "sdk.dir=/usr/local/android" > local.properties
+
+      echo "--- 🧹 Linting"
+      cp -v gradle.properties-example gradle.properties
+      ./gradlew checkstyle
+    artifact_paths:
+      - "**/build/reports/checkstyle/checkstyle.*"
+
+  - label: "detekt"
+    command: |
+      #FIXME – fix in the next version of the AMI
+      echo "sdk.dir=/usr/local/android" > local.properties
+
+      echo "--- 🧹 Linting"
+      cp gradle.properties-example gradle.properties
+      ./gradlew detektAll
+    artifact_paths:
+      - "**/build/reports/detekt/detekt.html"
+
+  - label: "lint"
+    command: |
+      #FIXME – fix in the next version of the AMI
+      echo "sdk.dir=/usr/local/android" > local.properties
+
+      echo "--- 🧹 Linting"
+      cp gradle.properties-example gradle.properties
+      ./gradlew lintVanillaRelease
+    artifact_paths:
+      - "**/build/reports/lint-results*.*"
+
+  - label: "Test WooCommerce"
+    command: |
+      #FIXME – fix in the next version of the AMI
+      echo "sdk.dir=/usr/local/android" > local.properties
+
+      echo "--- 🧪 Testing"
+      cp gradle.properties-example gradle.properties
+      ./gradlew testVanillaRelease
+
+  - label: "Test CardReaderModule"
+    command: |
+      #FIXME – fix in the next version of the AMI
+      echo "sdk.dir=/usr/local/android" > local.properties
+
+      echo "--- 🧪 Testing"
+      cp gradle.properties-example gradle.properties
+      ./gradlew lib:cardreader:testRelease
+
+  - label: "Ensure Screenshot Tests Build"
+    command: |
+      #FIXME – fix in the next version of the AMI
+      echo "sdk.dir=/usr/local/android" > local.properties
+
+      echo "--- ⚒️ Building"
+      cp gradle.properties-example gradle.properties
+      ./gradlew assembleVanillaDebugAndroidTest
